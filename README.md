@@ -14,7 +14,7 @@
 
 ### ## 🛠 Developer API
 
-The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in the code) which you can call from any other script or your executor's console.
+The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in the code), which you can call from any other script or your executor's console.
 
 #### **1. Execute on a Specific Instance**
 
@@ -46,11 +46,17 @@ local code = [[
         print("Command received by the target alt.")
     end
 ]]
-getgenv().hydrobridge.executeAll(code)
+getgenv().hydrobridge.executeAll(script here)
 
 ```
 
 ---
+#### **4. Widely used script execution**
+-- Run this on your Main to make Instance #2 follow you
+local code = [[
+script here boiiiiiii
+]]
+getgenv().hydrobridge.execute(2, code)
 
 ### ## 📂 How it Works (Under the Hood)
 
