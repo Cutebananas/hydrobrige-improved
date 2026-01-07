@@ -4,7 +4,7 @@
 
 ---
 
-### ## 🚀 Quick Start
+### ##  Quick Start
 
 1. **Execution:** Run the script on all Roblox instances you wish to link.
 2. **Identification:** A small UI will appear in the top-right corner showing your **BRIDGE ID** (e.g., `BRIDGE ID: 1`).
@@ -12,7 +12,7 @@
 
 ---
 
-### ## 🛠 Developer API
+### ##  Developer API or sth idk
 
 The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in the code), which you can call from any other script or your executor's console.
 
@@ -70,7 +70,7 @@ getgenv().hydrobridge.execute(2, code)
 
 ---
 
-### ## ⚠️ Important Notes
+### ##  Important Notes that ur never read :(((
 
 * **Execution Delay:** There is a polling rate of **1 second**. Commands are not instant; they may take up to 1 second to trigger on the target.
 * **Executor Requirements:** Your executor must support `readfile`, `writefile`, `listfiles`, `makefolder`, and `loadstring`.
