@@ -21,8 +21,9 @@ The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in 
 Sends a string of code to be executed by a specific client ID.
 
 ```lua
--- Target Bridge ID 2 and make them jump
-getgenv().hydrobridge.execute(2, "game.Players.LocalPlayer.Character.Humanoid.Jump = true")
+getgenv().hydrobridge.execute(2, [[
+script here boiiiiii
+]])
 
 ```
 
@@ -31,9 +32,9 @@ getgenv().hydrobridge.execute(2, "game.Players.LocalPlayer.Character.Humanoid.Ju
 Sends a string of code to every active instance (including yourself).
 
 ```lua
--- Make every instance say "Hello" in chat
-getgenv().hydrobridge.executeAll("game:GetService('ReplicatedStorage').DefaultChatSystemChatEvents.SayMessageRequest:FireServer('Hello!', 'All')")
-
+getgenv().hydrobridge.executeAll([[
+script here boiiiiiiiiii
+]])
 ```
 
 #### **3. Conditional Targeting (Logic Gates)**
@@ -52,11 +53,13 @@ getgenv().hydrobridge.executeAll(script here)
 
 ---
 #### **4. Widely used script execution**
--- Run this on your Main to make Instance #2 follow you
+```lua
+-- executeeeee
 local code = [[
 script here boiiiiiii
 ]]
 getgenv().hydrobridge.execute(2, code)
+```
 
 ### ## 📂 How it Works (Under the Hood)
 
