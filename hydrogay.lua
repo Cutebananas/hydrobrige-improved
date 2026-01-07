@@ -1,148 +1,162 @@
 --[[
-    HYDROBRIDGE V4: ENTERPRISE EDITION
-    Stability: High | Security: Whitelisted | Multi-Account: Supported
+    HYDROBRIDGE V5: FINAL STABLE
+    - Fixes "Same ID" Race Condition
+    - Auto-cleans stale files
+    - Live ID Re-sorting
 --]]
 
--- 1. INITIALIZATION & NIL GUARDS
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
-local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-    LocalPlayer = Players.LocalPlayer
-end
-
-local JOB_ID = (game.JobId ~= "" and game.JobId) or "STUDIO_SESSION"
 local FOLDER = "hydrobridge"
-local SECRET_KEY = "SECURE_KEY_123" -- Change this to prevent unauthorized injections
-local MY_FILE_PATH = string.format("%s/%s_%s.json", FOLDER, LocalPlayer.Name, JOB_ID:sub(1, 8))
+local SECRET_KEY = "SECURE_KEY_123"
+local JOB_ID = (game.JobId ~= "" and game.JobId) or "STUDIO"
+local MY_FILE_NAME = string.format("%s_%s.json", LocalPlayer.Name, JOB_ID:sub(1, 8))
+local MY_FILE_PATH = FOLDER .. "/" .. MY_FILE_NAME
 
 if not isfolder(FOLDER) then makefolder(FOLDER) end
 
--- 2. STANDARDIZED UTILITIES
+getgenv().hydrobridge = { InstanceId = 0 }
+local hb = getgenv().hydrobridge
+
+-- [[ UTILITIES ]] --
 local function safeDecode(str)
-    if not str or str == "" then return nil end
-    local success, result = pcall(function() return HttpService:JSONDecode(str) end)
-    return success and result or nil
+    local s, r = pcall(HttpService.JSONDecode, HttpService, str)
+    return s and r or nil
 end
 
 local function safeEncode(tbl)
-    local success, result = pcall(function() return HttpService:JSONEncode(tbl) end)
-    return success and result or "{}"
+    local s, r = pcall(HttpService.JSONEncode, HttpService, tbl)
+    return s and r or "{}"
 end
 
--- 3. CORE BRIDGE OBJECT
-getgenv().hydrobridge = {
-    InstanceId = 0,
-    Version = "4.0.0"
-}
-local hb = getgenv().hydrobridge
+-- [[ CLEANUP STALE FILES ]] --
+-- Deletes files that haven't been updated in over 15 seconds
+local function cleanup()
+    local files = listfiles(FOLDER)
+    local now = os.time()
+    for _, path in ipairs(files) do
+        local lastMod = 0
+        pcall(function()
+            local data = safeDecode(readfile(path))
+            lastMod = data and data.lastHeartbeat or 0
+        end)
+        if now - lastMod > 15 then
+            pcall(delfile, path)
+        end
+    end
+end
 
--- 4. STABLE INSTANCE NUMBERING
+-- [[ DYNAMIC ID SORTING ]] --
 local function updateInstanceId()
     local files = listfiles(FOLDER)
-    table.sort(files)
-    for i, path in ipairs(files) do
-        if path:find(LocalPlayer.Name) and path:find(JOB_ID:sub(1, 8)) then
-            hb.InstanceId = i
+    local activeJson = {}
+    
+    for _, path in ipairs(files) do
+        if path:sub(-5) == ".json" then table.insert(activeJson, path) end
+    end
+    table.sort(activeJson)
+    
+    for i, path in ipairs(activeJson) do
+        if path:find(MY_FILE_NAME, 1, true) then
+            if hb.InstanceId ~= i then
+                hb.InstanceId = i
+                local ui = game:GetService("CoreGui"):FindFirstChild("HydroBridgeUI")
+                if ui then ui.TextLabel.Text = "BRIDGE ID: " .. i end
+            end
             return i
         end
     end
-    return 0
 end
 
--- 5. UI NOTIFICATION SYSTEM
+-- [[ UI ]] --
 local function createUI(id)
-    local coreGui = game:GetService("CoreGui")
-    if coreGui:FindFirstChild("HydroBridgeUI") then coreGui.HydroBridgeUI:Destroy() end
-
     local sg = Instance.new("ScreenGui")
     sg.Name = "HydroBridgeUI"
-    sg.ResetOnSpawn = false
+    sg.DisplayOrder = 999
     
     local label = Instance.new("TextLabel", sg)
-    label.Size = UDim2.new(0, 160, 0, 25)
-    label.Position = UDim2.new(1, -170, 0, 10)
-    label.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    label.BackgroundTransparency = 0.2
-    label.TextColor3 = Color3.fromRGB(0, 200, 255)
-    label.Text = "BRIDGE ID: " .. tostring(id)
+    label.Size = UDim2.new(0, 140, 0, 30)
+    label.Position = UDim2.new(1, -150, 0, 10)
+    label.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    label.TextColor3 = Color3.fromRGB(0, 255, 150)
+    label.Text = "BRIDGE ID: " .. id
     label.Font = Enum.Font.Code
-    label.TextSize = 14
+    label.BorderSizePixel = 0
     
-    local success, _ = pcall(function() sg.Parent = coreGui end)
-    if not success then sg.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+    pcall(function() sg.Parent = game:GetService("CoreGui") end)
+    if not sg.Parent then sg.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 end
 
--- 6. FAULT-TOLERANT EXECUTION API
-hb.execute = function(targetId, scriptStr)
+-- [[ API ]] --
+hb.execute = function(id, code)
     local files = listfiles(FOLDER)
-    table.sort(files)
-    local targetPath = files[targetId]
+    local activeJson = {}
+    for _, p in ipairs(files) do if p:sub(-5) == ".json" then table.insert(activeJson, p) end end
+    table.sort(activeJson)
     
-    if not targetPath then return false, "Instance not found" end
-    
-    -- MERGE-ON-WRITE: Prevents overwriting heartbeats or other commands
-    local content = isfile(targetPath) and readfile(targetPath) or "{}"
-    local data = safeDecode(content) or {commands = {}}
-    
-    table.insert(data.commands, {
-        script = scriptStr,
-        secret = SECRET_KEY,
-        sentAt = os.time()
-    })
-    
-    pcall(writefile, targetPath, safeEncode(data))
-    return true
+    local target = activeJson[id]
+    if target then
+        local data = safeDecode(readfile(target)) or {commands = {}}
+        table.insert(data.commands, {script = code, secret = SECRET_KEY})
+        writefile(target, safeEncode(data))
+        return true
+    end
+    return false
 end
 
-hb.executeAll = function(scriptStr)
+hb.executeAll = function(code)
     local files = listfiles(FOLDER)
-    for i = 1, #files do hb.execute(i, scriptStr) end
+    for _, path in ipairs(files) do
+        if path:sub(-5) == ".json" then
+            local data = safeDecode(readfile(path)) or {commands = {}}
+            table.insert(data.commands, {script = code, secret = SECRET_KEY})
+            writefile(path, safeEncode(data))
+        end
+    end
 end
 
--- 7. THE MAIN LOOP (HEARTBEAT & COMMAND POLLING)
+-- [[ MAIN EXECUTION ]] --
 task.spawn(function()
+    cleanup() -- Clear old files from previous crashes
+    
+    -- INITIAL CLAIM: Write file immediately
+    writefile(MY_FILE_PATH, safeEncode({
+        lastHeartbeat = os.time(),
+        commands = {}
+    }))
+    
+    -- JITTER: Prevent simultaneous reading
+    task.wait(math.random(1, 100) / 100)
+    
     updateInstanceId()
     createUI(hb.InstanceId)
     
     while task.wait(1) do
-        -- 1. RE-SYNC Instance ID if someone left/joined
-        updateInstanceId()
+        updateInstanceId() -- Re-check IDs in case someone joined/left
         
-        -- 2. FETCH DATA
         local content = isfile(MY_FILE_PATH) and readfile(MY_FILE_PATH) or "{}"
-        local data = safeDecode(content) or {commands = {}, lastHeartbeat = 0}
+        local data = safeDecode(content) or {commands = {}}
         
-        -- 3. PROCESS PENDING COMMANDS
-        if data.commands and #data.commands > 0 then
+        if #data.commands > 0 then
             for _, cmd in ipairs(data.commands) do
                 if cmd.secret == SECRET_KEY then
                     task.spawn(function()
                         local func, err = loadstring(cmd.script)
-                        if func then 
-                            local s, r = pcall(func)
-                            if not s then warn("[HYDROBRIDGE] Runtime Error: " .. tostring(r)) end
-                        else 
-                            warn("[HYDROBRIDGE] Compilation Error: " .. tostring(err)) 
-                        end
+                        if func then pcall(func) end
                     end)
-                else
-                    warn("[SECURITY] Blocked unsigned command execution attempt.")
                 end
             end
-            data.commands = {} -- Flush queue after processing
+            data.commands = {}
         end
         
-        -- 4. UPDATE STATUS & WRITE BACK
         data.lastHeartbeat = os.time()
-        data.username = LocalPlayer.Name
-        data.jobId = JOB_ID
-        
         pcall(writefile, MY_FILE_PATH, safeEncode(data))
     end
 end)
 
-print("[HYDROBRIDGE] System active on Instance #" .. tostring(hb.InstanceId))
+-- Remove file on normal close (Optional/Executor dependent)
+game:BindToClose(function()
+    pcall(delfile, MY_FILE_PATH)
+end)
