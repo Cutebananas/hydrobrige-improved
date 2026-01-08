@@ -11,7 +11,22 @@
 
 ###   Quick Start
 
-1. **Execution:** Run the script on all Roblox instances you wish to link (def, paste all that shit into auto execute) .
+1. **Execution:** Paste this script into auto execute.
+**If you want to use v5, use this script**
+```lua
+getgenv().request = http_request
+http.request = http_request
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Cutebananas/hydrobrige-beta/refs/heads/main/hydrobrige%20V5.lua?token=GHSAT0AAAAAADSU6ZBGVHXPIWS6N4FB6G742K7YZEQ))"))()
+]])
+```
+**If you want V6 (newer version), use this**
+```lua
+getgenv().request = http_request
+http.request = http_request
+
+loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
+```
 2. **Identification:** A small UI will appear in the top-right corner showing your **BRIDGE ID** (e.g., `BRIDGE ID: 1`).
 3. **Communication:** Use the global `hydrobridge` table to send commands between clients.
 
