@@ -1,4 +1,5 @@
 --[[
+PASTE THIS INTO AUTO EXEC OR FOLLOW THE README FILE
     HYDROBRIDGE V6.0: Optimized & Refactored
     - Implemented Throttling: ID updates and Cleanup run on slower intervals to save CPU.
     - Robust Error Handling: Better JSON safety and pcall wrapping.
