@@ -40,7 +40,7 @@ The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in 
 Sends a string of code to be executed by a specific client ID.
 
 ```lua
-getgenv().hydrobridge.execute(2, [[
+getgenv().hydrobridge.execute(bridge id here, [[
 script here boiiiiii
 ]])
 
