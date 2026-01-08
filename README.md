@@ -1,5 +1,5 @@
-## **HYDROBRIDGE V5 — Documentation and some tutorials**
-
+## **HYDROBRIDGE V6 and V5 — Documentation and some tutorials**
+**basically the same, but v6 is way cleaner and better**
 **Hydrobridge** is a file-based communication protocol for Roblox. It allows multiple game instances running on the same machine to "talk" to each other by using the local file system as a data bridge.
 (It's something you use for multi-instance script execution)
 
