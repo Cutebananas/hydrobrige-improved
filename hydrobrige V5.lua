@@ -1,5 +1,5 @@
 --[[
-PASTE THIS INTO AUTO EXECUTE
+PASTE THIS INTO AUTO EXEC OR FOLLOW THE README FILE
     HYDROBRIDGE V5: ye, definitely improved sth
     - Fixed lots of flaws from the old version
     - Removed BindToClose (Fixed Server-Only Error)
