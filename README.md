@@ -5,7 +5,7 @@
 
 ---
 
-### ##  Quick Start
+###   Quick Start
 
 1. **Execution:** Run the script on all Roblox instances you wish to link (def, paste all that shit into auto execute) .
 2. **Identification:** A small UI will appear in the top-right corner showing your **BRIDGE ID** (e.g., `BRIDGE ID: 1`).
@@ -13,7 +13,7 @@
 
 ---
 
-### ##  Developer API or sth idk
+###  For Developers 
 
 The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in the code), which you can call from any other script or your executor's console.
 
@@ -62,7 +62,7 @@ script here boiiiiiii
 getgenv().hydrobridge.execute(2, code)
 ```
 
-### ##  How it Works (Under the Hood)
+###   How it Works (Under the Hood)
 
 * **File Path:** Files are stored in `workspace/hydrobridge/`.
 * **Heartbeat:** Each instance updates a `lastHeartbeat` timestamp every second. If an instance doesn't update for 15 seconds, other instances will automatically delete its file to keep the "Bridge IDs" clean.
@@ -71,7 +71,7 @@ getgenv().hydrobridge.execute(2, code)
 
 ---
 
-### ##  Important Notes that ur never read :(((
+###  Important Notes that ur never read :(((
 
 * **Execution Delay:** There is a polling rate of **1 second**. Commands are not instant; they may take up to 1 second to trigger on the target.
 * **Executor Requirements:** Your executor must support `readfile`, `writefile`, `listfiles`, `makefolder`, and `loadstring`.
