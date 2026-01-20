@@ -63,7 +63,8 @@ If you want to send a command to everyone but only have specific accounts react,
 ```lua
 local code = [[
     if game.Players.LocalPlayer.Name == "YourAltName" then
-        print("Command received by the target alt.")
+paste script here
+
     end
     --Keep the part above, paste your script below here
 ]]
