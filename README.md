@@ -66,7 +66,7 @@ local code = [[
 paste script here
 
     end
-    --Keep the part above, paste your script below here
+
 ]]
 getgenv().hydrobridge.executeAll(code)
 
