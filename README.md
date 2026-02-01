@@ -26,6 +26,7 @@ getgenv().request = http_request
 getgenv().http = {request = http_request}
 
 loadstring(game:HttpGet("(https://raw.githubusercontent.com/Cutebananas/hydrobrige-beta/refs/heads/main/hydrobrige%20V5.lua)"))()
+```
 ---
 2. **Identification:** A small UI will appear in the top-right corner showing your **BRIDGE ID** (e.g., `BRIDGE ID: 1`).
 3. **Communication:** Use the global `hydrobridge` table to send commands between clients.
