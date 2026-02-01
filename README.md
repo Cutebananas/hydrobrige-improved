@@ -75,7 +75,7 @@ getgenv().hydrobridge.executeAll(code)
 ```
 
 ---
-#### **4. Widely used script execution**
+#### **4. Widely used script execution (for noobs) **
 ```lua
 -- executeeeee
 local code = [[
