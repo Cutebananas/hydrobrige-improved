@@ -33,6 +33,7 @@ loadstring(game:HttpGet("(https://raw.githubusercontent.com/Cutebananas/hydrobri
 
 
 ###  TUTORIAL AND USE
+Watch https://youtu.be/3TSz3L4OEmg for easy usage
 ###  ALL THE SCRIPTS BELOW SHOULD BE PASTED AND EXECUTED NORMALLY (NOT AUTO EXECUTE)
 
 The script injects a global table `getgenv().hydrobridge` (shortened to `hb` in the code), which you can call from any other script or your executor's console.
